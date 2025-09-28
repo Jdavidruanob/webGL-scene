@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Babylon.js - Misión Completa</title>
+        <title>Babylon.js - Misión Recreación OpenGL</title>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
         <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
@@ -59,52 +59,54 @@
         
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
-            var camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(65), 10, BABYLON.Vector3.Zero(), scene);
+            
+            // CÁMARA: Alejar el radio a 15 para abarcar el suelo de 12x12
+            var camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(65), 15, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, true);
+
             var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
             light.intensity = 0.7;
 
-            // MATERIALES BASE (para texturas de prueba y normales)
+            // MATERIALES BASE Y NORMALES
             const roofMat = new BABYLON.StandardMaterial("roofMat");
             roofMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/roof.jpg", scene);
-
-            // MATERIAL CON MAPA DE NORMALES (mat1) - Requisito del Bump Map
             var mat1 = new BABYLON.StandardMaterial("mat1", scene);
             mat1.diffuseTexture = new BABYLON.Texture("https://i.imgur.com/Wk1cGEq.png", scene);
             mat1.bumpTexture = new BABYLON.Texture("https://i.imgur.com/wGyk6os.png", scene); 
 
-            // SUELO
-            var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 6, height: 6}, scene);
+            // SUELO: Aumentado a 12x12
+            var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 12, height: 12}, scene);
             let groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
             ground.material = groundMaterial;
             let groundTexture = new BABYLON.Texture(Assets.textures.checkerboard_basecolor_png.path, scene);
             ground.material.diffuseTexture = groundTexture;
 
             // =========================================================================
-            // 1. MALLA DE TU MUNDO ORIGINAL (chinchorro.glb)
+            // 1. MALLA DE TU MUNDO ORIGINAL (CHINCHORRO) - Ubicación: Izquierda
             // =========================================================================
             BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "chinchorro.glb").then((result) => {
                 const chinchorroRoot = result.meshes[0];
                 
-                chinchorroRoot.position.x = 4;
-                chinchorroRoot.rotation.y = BABYLON.Tools.ToRadians(45); 
-                chinchorroRoot.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5); 
+                chinchorroRoot.position.x = -4; // Izquierda
+                chinchorroRoot.position.y = 0; 
+                chinchorroRoot.rotation.y = BABYLON.Tools.ToRadians(0); 
+                chinchorroRoot.scaling = new BABYLON.Vector3(0.8, 0.8, 0.8); 
             });
 
             // =========================================================================
-            // 2. OBJETO CON MAPA DE NORMALES (HOEWA FORSTERIANA) - REQUISITO CUMPLIDO 1
+            // 2. OBJETO CON MAPA DE NORMALES (HOEWA FORSTERIANA) - Ubicación: Centro
             // =========================================================================
             BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "hoewa_Forsteriana.glb").then((result) => {
                 const hojaRoot = result.meshes[0];
                 const hojaMesh = result.meshes[1]; 
                 
                 // Mover y escalar con el contenedor raíz
-                hojaRoot.position.x = -2;
+                hojaRoot.position.x = 0; // Centro
                 hojaRoot.position.y = 0; 
                 hojaRoot.rotation.y = BABYLON.Tools.ToRadians(45);
-                hojaRoot.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01); 
+                hojaRoot.scaling = new BABYLON.Vector3(0.02, 0.02, 0.02); 
                 
-                // Aplicar SOLO la textura de normales al material existente.
+                // Aplicar SOLO la textura de normales
                 const originalMaterial = hojaMesh.material; 
                 if (originalMaterial && (originalMaterial instanceof BABYLON.PBRMaterial || originalMaterial instanceof BABYLON.StandardMaterial)) {
                     originalMaterial.bumpTexture = mat1.bumpTexture; 
@@ -115,26 +117,25 @@
             });
 
             // =========================================================================
-            // 3. OTRO OBJETO ADICIONAL CON MAPA DE NORMALES (PALMERA.GLB)
+            // 3. OTRO OBJETO ADICIONAL (PALMERA.GLB) - Ubicación: Derecha
             // =========================================================================
             BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "palmera.glb").then((result) => {
                 const palmeraRoot = result.meshes[0];
-                const palmeraMesh = result.meshes[1] || result.meshes[2]; // Probar índice 1 o 2 para la malla principal
+                const palmeraMesh = result.meshes[1] || result.meshes[2]; 
                 
-                // Mover y escalar con el contenedor raíz para una ubicación nueva (en el eje Z)
-                palmeraRoot.position.x = 0;
+                // Mover y escalar con el contenedor raíz
+                palmeraRoot.position.x = 4; // Derecha
                 palmeraRoot.position.y = 0; 
-                palmeraRoot.position.z = -3; 
+                palmeraRoot.position.z = 0; 
                 palmeraRoot.rotation.y = BABYLON.Tools.ToRadians(0);
-                palmeraRoot.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5); 
+                palmeraRoot.scaling = new BABYLON.Vector3(0.8, 0.8, 0.8); 
                 
-                // Aplicar SOLO la textura de normales al material existente.
+                // Aplicar SOLO la textura de normales (para cumplir con el requisito adicional)
                 const originalMaterial = palmeraMesh.material; 
                 if (originalMaterial && (originalMaterial instanceof BABYLON.PBRMaterial || originalMaterial instanceof BABYLON.StandardMaterial)) {
                     originalMaterial.bumpTexture = mat1.bumpTexture; 
                     originalMaterial.bumpLevel = 2.0; 
                 } else {
-                    // Fallback
                     palmeraMesh.material = mat1;
                 }
             });

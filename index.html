@@ -106,16 +106,26 @@
             // Requisito CLAVE de la consigna.
             // =========================================================================
             BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "hoewa_Forsteriana.glb").then((result) => {
-                const hojaMesh = result.meshes[1];
+                // Definimos el contenedor padre, que mueve a todos sus hijos.
+                const hojaRoot = result.meshes[0]; 
                 
-                // Aplicamos el material con el mapa de normales (mat1)
+                // Y la malla visible (donde aplicamos el material, si no lo hizo el GLB automáticamente)
+                const hojaMesh = result.meshes[1]; 
+                
+                // 1. Aplicamos el material a la geometría.
                 hojaMesh.material = mat1; 
                 
-                hojaMesh.position.x = -2;
-                hojaMesh.position.y = 0; // Colocado en el suelo
-                hojaMesh.rotation.y = BABYLON.Tools.ToRadians(45);
-                // Si ya ajustaste la escala en Blender, este valor debe ser 1 o un ajuste leve.
-                // Lo dejamos en 0.05 por si acaso, pero ajústalo si es necesario.
+                // 2. Aplicamos todas las transformaciones al CONTENEDOR RAÍZ (hojaRoot)
+                // Esto asegura que todas las sub-mallas se muevan, giren y escalen juntas.
+                hojaRoot.position.x = -2;
+                hojaRoot.position.y = 0; 
+                hojaRoot.rotation.y = BABYLON.Tools.ToRadians(45);
+                // Si ajustaste la escala en Blender, puedes dejarlo sin scaling o en 1.
+                hojaRoot.scaling = new BABYLON.Vector3(1, 1, 1); // Asumo que la escala del GLB ya es correcta
+
+                // Opcional: Si la malla pequeña es un "esqueleto" o un nodo de ayuda, 
+                // podrías necesitar ocultar el contenedor raíz si todavía ves el duplicado,
+                // pero eso es menos común con un GLB bien exportado.
             });
 
 

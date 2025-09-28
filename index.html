@@ -105,7 +105,7 @@
             // 2. OBJETO CON MAPA DE NORMALES (HOEWA FORSTERIANA)
             // Requisito CLAVE de la consigna.
             // =========================================================================
-            BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "hoewa_Forsteriana.glb").then((result) => {
+            /* BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "hoewa_Forsteriana.glb").then((result) => {
                 const hojaMesh = result.meshes[1];
                 
                 // Aplicamos el material con el mapa de normales (mat1)
@@ -116,8 +116,7 @@
                 hojaMesh.rotation.y = BABYLON.Tools.ToRadians(45);
                 // Si ya ajustaste la escala en Blender, este valor debe ser 1 o un ajuste leve.
                 // Lo dejamos en 0.05 por si acaso, pero ajústalo si es necesario.
-                hojaMesh.scaling = new BABYLON.Vector3(0.05, 0.05, 0.05); 
-            });
+            }); */
 
 
             /* // =========================================================================

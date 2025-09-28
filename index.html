@@ -102,30 +102,52 @@
             }); */
 
             // =========================================================================
-            // 2. OBJETO CON MAPA DE NORMALES (HOEWA FORSTERIANA)
-            // Requisito CLAVE de la consigna.
+            // 2. OBJETO CON MAPA DE NORMALES (HOEWA FORSTERIANA) - PRESERVACIÓN DE MATERIAL
             // =========================================================================
             BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "hoewa_Forsteriana.glb").then((result) => {
-                // Definimos el contenedor padre, que mueve a todos sus hijos.
-                const hojaRoot = result.meshes[0]; 
                 
-                // Y la malla visible (donde aplicamos el material, si no lo hizo el GLB automáticamente)
+                // Malla 0: El CONTENEDOR RAÍZ. Se utiliza para las transformaciones.
+                const hojaRoot = result.meshes[0];
+                
+                // Malla 1: La GEOMETRÍA principal (asumimos que es donde queremos las normales).
                 const hojaMesh = result.meshes[1]; 
                 
-                // 1. Aplicamos el material a la geometría.
-                hojaMesh.material = mat1; 
-                
-                // 2. Aplicamos todas las transformaciones al CONTENEDOR RAÍZ (hojaRoot)
-                // Esto asegura que todas las sub-mallas se muevan, giren y escalen juntas.
+                // 1. Aplicamos las transformaciones al CONTENEDOR RAÍZ para mover todo.
                 hojaRoot.position.x = -2;
                 hojaRoot.position.y = 0; 
                 hojaRoot.rotation.y = BABYLON.Tools.ToRadians(45);
-                // Si ajustaste la escala en Blender, puedes dejarlo sin scaling o en 1.
-                hojaRoot.scaling = new BABYLON.Vector3(1, 1, 1); // Asumo que la escala del GLB ya es correcta
+                hojaRoot.scaling = new BABYLON.Vector3(1, 1, 1); 
 
-                // Opcional: Si la malla pequeña es un "esqueleto" o un nodo de ayuda, 
-                // podrías necesitar ocultar el contenedor raíz si todavía ves el duplicado,
-                // pero eso es menos común con un GLB bien exportado.
+                // 2. OBTENER EL MATERIAL ORIGINAL de la malla de la hoja
+                const originalMaterial = hojaMesh.material; 
+
+                // 3. ¡APLICAR SOLO EL MAPA DE NORMALES!
+                // Asumimos que el GLB usa PBRMaterial, que es el estándar.
+                if (originalMaterial instanceof BABYLON.PBRMaterial || originalMaterial instanceof BABYLON.StandardMaterial) {
+                    
+                    // Asignamos la textura de normales del mat1 al material original de la malla
+                    originalMaterial.bumpTexture = mat1.bumpTexture; 
+                    
+                    // Opcional: Aumentar la fuerza del relieve (para que el profesor lo vea)
+                    originalMaterial.invertNormalMapX = true; // A veces es necesario invertir
+                    originalMaterial.bumpLevel = 2.0; 
+                    
+                    console.log("✅ Mapa de Normales aplicado al material original de la planta.");
+
+                } else {
+                    // Si el material es un MultiMaterial, tendríamos que buscar la sub-malla correcta.
+                    console.warn("⚠️ Advertencia: El material no es Standard o PBR. Se aplicará mat1 completo (puede fallar).");
+                    hojaMesh.material = mat1;
+                }
+                
+                // Si la planta sigue mostrando partes grises, tendríamos que iterar sobre todas las mallas:
+                /*
+                result.meshes.forEach((mesh, index) => {
+                    if (index > 0 && mesh.material) {
+                        mesh.material.bumpTexture = mat1.bumpTexture;
+                    }
+                });
+                */
             });
 
 

@@ -88,24 +88,45 @@
     let groundTexture = new BABYLON.Texture(Assets.textures.checkerboard_basecolor_png.path, scene);
     ground.material.diffuseTexture = groundTexture;
 
-    var mat1 = new BABYLON.StandardMaterial("mat1", scene);
+    var mat1 = new BABYLON.StandardMaterial("mat1", scene);
 	mat1.diffuseTexture = new BABYLON.Texture("https://i.imgur.com/Wk1cGEq.png", scene);
-	mat1.bumpTexture = new BABYLON.Texture("https://i.imgur.com/wGyk6os.png", scene);
+	mat1.bumpTexture = new BABYLON.Texture("https://i.imgur.com/wGyk6os.png", scene); // <--- ESTE ES TU MAPA DE NORMALES/BUMP
 
-    /* BABYLON.SceneLoader.ImportMesh("",Assets.meshes.Yeti.rootUrl, Assets.meshes.Yeti.filename, scene, function(newMeshes){
-        newMeshes[0].scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
+/* ... Carga de chinchorro.glb (Malla Original) ... */
+    BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "chinchorro.glb").then((result) => {
+    	result.meshes[1].position.x = 4;
+        result.meshes[1].material = roofMat;
+        result.meshes[1].rotate  = new BABYLON.Vector3(0, 45, 0);
+        result.meshes[1].scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+    });
+
+
+// =========================================================================
+// PASO CLAVE: CARGAR EL OBJETO CON EL MAPA DE NORMALES
+// Usamos hoewa_Forsteriana.glb y le aplicamos el material mat1 (que tiene el bumpTexture)
+// =========================================================================
     
-    }); */
+    // NOTA: Asumo que el archivo está en la misma ubicación raíz. Si lo moviste a una 
+    // carpeta 'assets', ajusta la ruta.
+    BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "hoewa_Forsteriana.glb").then((result) => {
+        
+        // La malla principal del GLB suele ser el segundo elemento (índice 1)
+        const hojaMesh = result.meshes[1]; 
+        
+        // 1. Aplicar el material que tiene la textura y el mapa de normales (mat1)
+    	hojaMesh.material = mat1; 
+        
+        // 2. Posicionarlo para que no choque con el chinchorro
+        hojaMesh.position.x = -2;
+        hojaMesh.position.y = 0.5; // Elevar un poco si es necesario
+        
+        // 3. Ajustar escala (Probablemente necesites ajustarla mucho para una planta)
+        hojaMesh.scaling = new BABYLON.Vector3(0.05, 0.05, 0.05); // Ejemplo de escala pequeña
+        
+        // 4. Rotar si es necesario
+        hojaMesh.rotation.y = BABYLON.Tools.ToRadians(45);
+    });
 
-    BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "chinchorro.glb").then((result) => {
-    	result.meshes[1].position.x = 4;
-        result.meshes[1].material = roofMat;
-        result.meshes[1].rotate  = new BABYLON.Vector3(0, 45, 0);
-        result.meshes[1].scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
-    
-
-
-    });
 
     /* BABYLON.SceneLoader.ImportMeshAsync("", "https://aannewball.github.io/myCoolBabylonApp/", "Vase_Clay.glb").then((result) => {
     	result.meshes[1].position.x = 1;
@@ -152,5 +173,6 @@
     </script>
 </body>
 </html>
+
 
 

@@ -92,12 +92,12 @@
 	mat1.diffuseTexture = new BABYLON.Texture("https://i.imgur.com/Wk1cGEq.png", scene);
 	mat1.bumpTexture = new BABYLON.Texture("https://i.imgur.com/wGyk6os.png", scene);
 
-    BABYLON.SceneLoader.ImportMesh("",Assets.meshes.Yeti.rootUrl, Assets.meshes.Yeti.filename, scene, function(newMeshes){
+    /* BABYLON.SceneLoader.ImportMesh("",Assets.meshes.Yeti.rootUrl, Assets.meshes.Yeti.filename, scene, function(newMeshes){
         newMeshes[0].scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
     
-    });
+    }); */
 
-    BABYLON.SceneLoader.ImportMeshAsync("", "https://github.com/Jdavidruanob/changos-webGL", "chinchorro.glb").then((result) => {
+    BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "chinchorro.glb").then((result) => {
     	result.meshes[1].position.x = 4;
         result.meshes[1].material = roofMat;
         result.meshes[1].rotate  = new BABYLON.Vector3(0, 45, 0);
@@ -107,17 +107,17 @@
 
     });
 
-    BABYLON.SceneLoader.ImportMeshAsync("", "https://aannewball.github.io/myCoolBabylonApp/", "Vase_Clay.glb").then((result) => {
+    /* BABYLON.SceneLoader.ImportMeshAsync("", "https://aannewball.github.io/myCoolBabylonApp/", "Vase_Clay.glb").then((result) => {
     	result.meshes[1].position.x = 1;
         result.meshes[1].rotation.x = BABYLON.Tools.ToRadians(45);;
         result.meshes[1].material = mat1;
         
   
-    });
+    }); */
 
 
 
-    BABYLON.SceneLoader.ImportMeshAsync("semi_house", "https://assets.babylonjs.com/meshes/", "both_houses_scene.babylon");
+    /* BABYLON.SceneLoader.ImportMeshAsync("semi_house", "https://assets.babylonjs.com/meshes/", "both_houses_scene.babylon"); */
 
 
 
@@ -152,4 +152,5 @@
     </script>
 </body>
 </html>
+
 

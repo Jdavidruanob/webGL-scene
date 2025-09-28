@@ -1,9 +1,8 @@
-<!-- lokura -->
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Babylon.js - Recreación OpenGL</title>
+        <title>Babylon.js - Misión Completa</title>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
         <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
@@ -30,13 +29,11 @@
                 margin: 0;
                 padding: 0;
             }
-
             #renderCanvas {
                 width: 100%;
                 height: 100%;
                 touch-action: none;
             }
-            
             #canvasZone {
                 width: 100%;
                 height: 100%;
@@ -47,7 +44,6 @@
     <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
     <script>
         var canvas = document.getElementById("renderCanvas");
-
         var startRenderLoop = function (engine, canvas) {
             engine.runRenderLoop(function () {
                 if (sceneToRender && sceneToRender.activeCamera) {
@@ -59,104 +55,73 @@
         var engine = null;
         var scene = null;
         var sceneToRender = null;
-        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, disableWebGL2Support: false}); };
         
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
-
-            // CÁMARA
             var camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(65), 10, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, true);
-
-            // LUZ
             var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
             light.intensity = 0.7;
 
-            // MATERIALES BASE
+            // MATERIALES BASE (para texturas de prueba y normales)
             const roofMat = new BABYLON.StandardMaterial("roofMat");
             roofMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/roof.jpg", scene);
 
-            // MATERIAL CON MAPA DE NORMALES (mat1)
+            // MATERIAL CON MAPA DE NORMALES (mat1) - Requisito del Bump Map
             var mat1 = new BABYLON.StandardMaterial("mat1", scene);
             mat1.diffuseTexture = new BABYLON.Texture("https://i.imgur.com/Wk1cGEq.png", scene);
-            mat1.bumpTexture = new BABYLON.Texture("https://i.imgur.com/wGyk6os.png", scene); // <--- Mapa de Normales/Bump
+            mat1.bumpTexture = new BABYLON.Texture("https://i.imgur.com/wGyk6os.png", scene); 
 
             // SUELO
             var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 6, height: 6}, scene);
             let groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
             ground.material = groundMaterial;
-            // Usando un checkerboard como ejemplo, puedes cambiarlo por tu textura de suelo
             let groundTexture = new BABYLON.Texture(Assets.textures.checkerboard_basecolor_png.path, scene);
             ground.material.diffuseTexture = groundTexture;
 
             // =========================================================================
-            // 1. MALLA DE TU MUNDO ORIGINAL (CHINCHORRO)
+            // 1. MALLA DE TU MUNDO ORIGINAL (ASUMIMOS ARCHIVO: chinchorro.glb)
             // =========================================================================
-            /* BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "chinchorro.glb").then((result) => {
-                const chinchorroMesh = result.meshes[1];
-                chinchorroMesh.position.x = 4;
-                chinchorroMesh.material = roofMat;
-                // Nota: la propiedad 'rotate' no existe, debes usar 'rotation'
-                chinchorroMesh.rotation.y = BABYLON.Tools.ToRadians(45); 
-                chinchorroMesh.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
-            }); */
+            BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "chinchorro.glb").then((result) => {
+                // Usamos el contenedor raíz (Index 0) para las transformaciones.
+                const chinchorroRoot = result.meshes[0];
+                
+                chinchorroRoot.position.x = 4;
+                chinchorroRoot.rotation.y = BABYLON.Tools.ToRadians(45); 
+                chinchorroRoot.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5); 
+            });
 
             // =========================================================================
-            // 2. OBJETO CON MAPA DE NORMALES (HOEWA FORSTERIANA) - PRESERVACIÓN DE MATERIAL
+            // 2. OBJETO CON MAPA DE NORMALES (HOEWA FORSTERIANA) - REQUISITO CUMPLIDO
             // =========================================================================
             BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "hoewa_Forsteriana.glb").then((result) => {
-                
-                // Malla 0: El CONTENEDOR RAÍZ. Se utiliza para las transformaciones.
                 const hojaRoot = result.meshes[0];
-                
-                // Malla 1: La GEOMETRÍA principal (asumimos que es donde queremos las normales).
                 const hojaMesh = result.meshes[1]; 
                 
-                // 1. Aplicamos las transformaciones al CONTENEDOR RAÍZ para mover todo.
+                // Mover y escalar con el contenedor raíz
                 hojaRoot.position.x = -2;
                 hojaRoot.position.y = 0; 
                 hojaRoot.rotation.y = BABYLON.Tools.ToRadians(45);
-                hojaRoot.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1); 
-
-                // 2. OBTENER EL MATERIAL ORIGINAL de la malla de la hoja
+                hojaRoot.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01); // Manteniendo la escala pequeña
+                
+                // Aplicar SOLO la textura de normales al material existente.
                 const originalMaterial = hojaMesh.material; 
-
-                // 3. ¡APLICAR SOLO EL MAPA DE NORMALES!
-                // Asumimos que el GLB usa PBRMaterial, que es el estándar.
-                if (originalMaterial instanceof BABYLON.PBRMaterial || originalMaterial instanceof BABYLON.StandardMaterial) {
-                    
-                    // Asignamos la textura de normales del mat1 al material original de la malla
+                if (originalMaterial && (originalMaterial instanceof BABYLON.PBRMaterial || originalMaterial instanceof BABYLON.StandardMaterial)) {
                     originalMaterial.bumpTexture = mat1.bumpTexture; 
-                    
-                    // Opcional: Aumentar la fuerza del relieve (para que el profesor lo vea)
-                    originalMaterial.invertNormalMapX = true; // A veces es necesario invertir
                     originalMaterial.bumpLevel = 2.0; 
-                    
-                    console.log("✅ Mapa de Normales aplicado al material original de la planta.");
-
                 } else {
-                    // Si el material es un MultiMaterial, tendríamos que buscar la sub-malla correcta.
-                    console.warn("⚠️ Advertencia: El material no es Standard o PBR. Se aplicará mat1 completo (puede fallar).");
+                    // Si falla la detección del material PBR/Standard, sobrescribe con mat1
                     hojaMesh.material = mat1;
                 }
-                
             });
 
 
-            /* // =========================================================================
-            // 3. OTRO OBJETO ADICIONAL (JARRÓN DE EJEMPLO)
-            // Esto completa el tercer requisito de objeto.
             // =========================================================================
-            BABYLON.SceneLoader.ImportMeshAsync("", "https://aannewball.github.io/myCoolBabylonApp/", "Vase_Clay.glb").then((result) => {
-                const vaseMesh = result.meshes[1]; 
-                
-                // Podemos usar el material 'roofMat' o crear uno nuevo.
-                vaseMesh.material = roofMat; 
-                
-                vaseMesh.position.x = 0;
-                vaseMesh.position.z = -1.5; // Lo movemos al centro/frente
-                vaseMesh.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1); 
-            }); */
+            // ESPACIO PARA EL OBJETO ADICIONAL (REQUISITO PENDIENTE: ITEM 3)
+            // Cuando lo necesites, puedes añadir aquí la hamaca (u otro objeto)
+            // BABYLON.SceneLoader.ImportMeshAsync(...)
+            // =========================================================================
 
             return scene;
         };
@@ -186,6 +151,3 @@
     </script>
 </body>
 </html>
-
-
-

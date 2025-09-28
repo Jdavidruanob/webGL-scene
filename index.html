@@ -109,22 +109,25 @@
     // NOTA: Asumo que el archivo está en la misma ubicación raíz. Si lo moviste a una 
     // carpeta 'assets', ajusta la ruta.
     BABYLON.SceneLoader.ImportMeshAsync("", "https://jdavidruanob.github.io/webGL-scene/", "hoewa_Forsteriana.glb").then((result) => {
+        
+        // CAMBIO CRUCIAL: Apuntamos al objeto RAÍZ/CONTENEDOR (índice 0)
+        const hojaRoot = result.meshes[0]; 
+        
+        // 1. Aplicar el material al OBJETO REAL (índice 1)
+        // Esto solo es necesario si el material PBR del GLB no se cargó correctamente
+    	result.meshes[1].material = mat1; 
+        
+        // 2. Aplicar las transformaciones (posición, escala, rotación) al objeto RAÍZ (índice 0)
         
-        // La malla principal del GLB suele ser el segundo elemento (índice 1)
-        const hojaMesh = result.meshes[1]; 
-        
-        // 1. Aplicar el material que tiene la textura y el mapa de normales (mat1)
-    	hojaMesh.material = mat1; 
-        
-        // 2. Posicionarlo para que no choque con el chinchorro
-        hojaMesh.position.x = -2;
-        hojaMesh.position.y = 0.5; // Elevar un poco si es necesario
-        
-        // 3. Ajustar escala (Probablemente necesites ajustarla mucho para una planta)
-        hojaMesh.scaling = new BABYLON.Vector3(0.005, 0.005, 0.005); // ¡Mucho más pequeño! 
-        
-        // 4. Rotar si es necesario
-        hojaMesh.rotation.y = BABYLON.Tools.ToRadians(45);
+        // POSICIÓN
+        hojaRoot.position.x = -2;
+        hojaRoot.position.y = 0.5; 
+        
+        // ESCALA: Prueba con 0.001 (1000 veces más pequeña que la unidad base)
+        hojaRoot.scaling = new BABYLON.Vector3(0.001, 0.001, 0.001); 
+        
+        // ROTACIÓN
+        hojaRoot.rotation.y = BABYLON.Tools.ToRadians(45);
     });
 
 
@@ -173,6 +176,7 @@
     </script>
 </body>
 </html>
+
 
 
 

@@ -116,7 +116,7 @@
                 hojaRoot.position.x = -2;
                 hojaRoot.position.y = 0; 
                 hojaRoot.rotation.y = BABYLON.Tools.ToRadians(45);
-                hojaRoot.scaling = new BABYLON.Vector3(1, 1, 1); 
+                hojaRoot.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1); 
 
                 // 2. OBTENER EL MATERIAL ORIGINAL de la malla de la hoja
                 const originalMaterial = hojaMesh.material; 
@@ -140,14 +140,6 @@
                     hojaMesh.material = mat1;
                 }
                 
-                // Si la planta sigue mostrando partes grises, tendríamos que iterar sobre todas las mallas:
-                /*
-                result.meshes.forEach((mesh, index) => {
-                    if (index > 0 && mesh.material) {
-                        mesh.material.bumpTexture = mat1.bumpTexture;
-                    }
-                });
-                */
             });
 
 
